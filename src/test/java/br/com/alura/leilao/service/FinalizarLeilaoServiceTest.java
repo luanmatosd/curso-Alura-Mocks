@@ -24,10 +24,13 @@ public class FinalizarLeilaoServiceTest {
     @Mock //Mock da classe LeilaoDao
     private LeilaoDao leilaoDaoMock;
 
+    @Mock //Mock da classe emailsDaoMock
+    private  EnviadorDeEmails emailsDaoMock;
+
     @BeforeEach
     public void beforeEach() {
-        MockitoAnnotations.initMocks(this); // Inicializa os mocks marcados com "@Mock"
-        this.finalizarLeilaoService = new FinalizarLeilaoService(leilaoDaoMock); //Instanciando a classe finalizarLeilaoService
+        MockitoAnnotations.initMocks(this); // Inicializa os mocks marcados com "@Mock"f
+        this.finalizarLeilaoService = new FinalizarLeilaoService(leilaoDaoMock, emailsDaoMock); //Instanciando a classe finalizarLeilaoService
     }
 
     @Test
@@ -45,7 +48,19 @@ public class FinalizarLeilaoServiceTest {
 
         assertTrue(leilao.isFechado()); //Conferindo essa parte do método = "leilao.fechar()"
         assertEquals(new BigDecimal("900"), leilao.getLanceVencedor().getValor()); //Conferindo essa parte do método = "leilao.setLanceVencedor(maiorLance);"
+        //Foi usado "Mockito.verify", pois, desejo verificar se o método do meu leilaoDaoMock funcionou!
         Mockito.verify(leilaoDaoMock).salvar(leilao); //Conferindo essa parte do método = "leiloes.salvar(leilao)"
+    }
+
+    @Test
+    void deveriaEnviarEmailParaVencedorDoLeilao(){
+        List<Leilao> leilaoList = leiloes();
+        Mockito.when(leilaoDaoMock.buscarLeiloesExpirados()).thenReturn(leilaoList);
+        finalizarLeilaoService.finalizarLeiloesExpirados();
+
+        Leilao leilao = leilaoList.get(0);
+        Lance lanceVencedor = leilao.getLanceVencedor();
+        Mockito.verify(emailsDaoMock).enviarEmailVencedorLeilao(lanceVencedor);
     }
 
     //Esse método foi criado, pois, não quero que no teste seja devolvida uma lista vazia

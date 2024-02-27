@@ -17,9 +17,12 @@ import br.com.alura.leilao.model.Leilao;
 public class FinalizarLeilaoService {
 
 	private LeilaoDao leiloes;
+	private EnviadorDeEmails emails;
+
 	@Autowired
-	public FinalizarLeilaoService(LeilaoDao leiloes) {
+	public FinalizarLeilaoService(LeilaoDao leiloes, EnviadorDeEmails emails) {
 		this.leiloes = leiloes;
+		this.emails = emails;
 	}
 
 	public void finalizarLeiloesExpirados() {
@@ -29,6 +32,7 @@ public class FinalizarLeilaoService {
 			leilao.setLanceVencedor(maiorLance);
 			leilao.fechar();
 			leiloes.salvar(leilao);
+			emails.enviarEmailVencedorLeilao(maiorLance);
 		});
 	}
 
