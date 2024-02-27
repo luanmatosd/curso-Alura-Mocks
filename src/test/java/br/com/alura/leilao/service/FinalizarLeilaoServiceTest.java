@@ -4,8 +4,11 @@ import br.com.alura.leilao.dao.LeilaoDao;
 import br.com.alura.leilao.model.Lance;
 import br.com.alura.leilao.model.Leilao;
 import br.com.alura.leilao.model.Usuario;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -18,13 +21,20 @@ public class FinalizarLeilaoServiceTest {
 
     private FinalizarLeilaoService finalizarLeilaoService;
 
+    @Mock //Mock da classe LeilaoDao
+    private LeilaoDao leilaoDaoMock;
+
+    @BeforeEach
+    public void beforeEach() {
+        MockitoAnnotations.initMocks(this); // Inicializa os mocks marcados com "@Mock"
+        this.finalizarLeilaoService = new FinalizarLeilaoService(leilaoDaoMock); //Instanciando a classe finalizarLeilaoService
+    }
+
     @Test
     void deveriaFinalizarUmLeilao(){
-        LeilaoDao leilaoDaoMock = Mockito.mock(LeilaoDao.class); //Mock da classe LeilaoDao
-        finalizarLeilaoService = new FinalizarLeilaoService(leilaoDaoMock); //Instanciando a classe finalizarLeilaoService
-
         List<Leilao> leilaoList = leiloes();
 
+        //Quando o método buscarLeiloesExpirados() for chamado, ele precisa retornar um leilaoList
         Mockito.when(leilaoDaoMock.buscarLeiloesExpirados()).thenReturn(leilaoList);
 
         //Chamando o método finalizarLeiloesExpirados();
