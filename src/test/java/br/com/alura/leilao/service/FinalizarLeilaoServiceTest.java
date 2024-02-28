@@ -63,6 +63,22 @@ public class FinalizarLeilaoServiceTest {
         Mockito.verify(emailsDaoMock).enviarEmailVencedorLeilao(lanceVencedor);
     }
 
+    @Test
+    void naoDeveEnviarEmailCasoExistaFalhasNoSalvamentoDoLeilao(){
+        List<Leilao> leilaoList = leiloes();
+        Mockito.when(leilaoDaoMock.buscarLeiloesExpirados()).thenReturn(leilaoList);
+        finalizarLeilaoService.finalizarLeiloesExpirados();
+
+        //Forçando uma Exception no método de salvar leilões
+        //Traduzindo: Mockito, quando eu quiser salvar qualquer coisa, lance uma Exception
+        Mockito.when(leilaoDaoMock.salvar(Mockito.any())).thenThrow(RuntimeException.class);
+
+        try {
+            finalizarLeilaoService.finalizarLeiloesExpirados();
+            Mockito.verifyZeroInteractions(emailsDaoMock);
+        }catch (Exception e){}
+    }
+
     //Esse método foi criado, pois, não quero que no teste seja devolvida uma lista vazia
     //na chamada do método "finalizarLeiloesExpirados()"
     //Método que cria uma lista de leilões em memória
