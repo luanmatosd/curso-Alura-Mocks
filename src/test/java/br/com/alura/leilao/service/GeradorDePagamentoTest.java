@@ -10,7 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,8 @@ public class GeradorDePagamentoTest {
 
     @Mock
     private PagamentoDao pagamentoDaoMock;
+    @Mock
+    private Clock clockMock;
 
     //Capturar um Objeto que foi passado pra um método de um Mock
     //Em nosso caso, seria o pagamento, pois, ele é gerado no método gerarPagamento da classe GeradorDePagamento
@@ -33,7 +38,7 @@ public class GeradorDePagamentoTest {
     @BeforeEach
     public void setUp(){
         MockitoAnnotations.initMocks(this);
-        this.geradorDePagamento = new GeradorDePagamento(pagamentoDaoMock);
+        this.geradorDePagamento = new GeradorDePagamento(pagamentoDaoMock, clockMock);
     }
 
     @Test
@@ -41,6 +46,13 @@ public class GeradorDePagamentoTest {
 
         Leilao leilao = leilao();
         Lance lanceVencedor = leilao.getLanceVencedor();
+
+        LocalDate data = LocalDate.of(2024, 02, 27);
+
+        Instant instant  = data.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+        Mockito.when(clockMock.instant()).thenReturn(instant);
+        Mockito.when(clockMock.getZone()).thenReturn(ZoneId.systemDefault());
 
         geradorDePagamento.gerarPagamento(lanceVencedor);
 
